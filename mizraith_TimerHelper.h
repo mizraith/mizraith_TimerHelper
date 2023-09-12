@@ -24,6 +24,9 @@ class mizraith_TimerHelper {
   public:
     void setupTimer0ForCounting(uint8_t count);
     void setupTimer1ForCounting(int count);
+    void setupTimer1ForInternalPhaseCorrectPWM(int count);
+
+	void setTimer1Count(int count);
 
     void printTimer0Info(); 
     void printTimer1Info();

@@ -150,6 +150,90 @@ void mizraith_TimerHelper::setupTimer1ForCounting(int count) {
   TIMSK1 |= (1 << OCIE1A);
 }
 
+void mizraith_TimerHelper::setupTimer1ForInternalPhaseCorrectPWM(int count) {
+  //set WGM1[3:0] to 0b0100 for CTC mode using OCR1A. Clear Timer on Compare Match, OCR1A sets top. 
+  //                            Counter is cleared when TCNT0 reaches OCR0A
+  //set CS1[2:0] to 0b001 for internal clocking.
+  //set OCR1A to count
+  //set TIMSK1 to OCIE1A
+//  ----- Timer1 Information -----
+//TCCR1A: 00000011
+//TCCR1B: 00010101
+//TIMSK1: 00000010
+//OCR1A : 11100000
+
+  //clear it out
+  TCCR1A = 0;      //nothing else to set
+  TCCR1B = 0;
+  TIMSK1 = 0;
+  
+  TCCR1B |= (1 << WGM13);
+  //TCCR1A |= (1 << WGM12);
+  TCCR1A |= (1 << WGM11);     // WGM13:10 0b1011 is Phase Correct with OCR1A at top 
+  TCCR1A |= (1 << WGM10);     // WGM12:10 0b000 is normal mode   WGM12:10 0b100 is CTC mode 
+  
+  TCCR1B |= (1 << CS12);       //CS12:10  0b101 = clk/1024  (pg 139)
+  //TCCR1B |= (1 << CS11);
+  TCCR1B |= (1 << CS10);  
+  
+  TCCR1A |= (1 << COM1A1);      // COM1x1:0 0b11 sets OC1x on compare match when upcoaunting, clear when downcoutning
+  TCCR1A |= (1 << COM1A0);     //  COM1x1:0 0b00  OC1x disconnected.  COM1A1:0 0b01  OC1A connected
+  
+  
+  
+  TCNT1 = 0;
+  
+  OCR1A = count;      // SET COUNTER 
+  
+  TIMSK1 |= (1 << OCIE1A);
+}
+
+
+void mizraith_TimerHelper::setTimer1Count(int count) {
+	OCR1A = count;      // SET COUNTER    may cause hiccups
+}
+
+
+//void mizraith_TimerHelper::setupTimer2ForInternalPhaseCorrectPWM(int count) {
+//  //set WGM1[3:0] to 0b0100 for CTC mode using OCR1A. Clear Timer on Compare Match, OCR1A sets top. 
+//  //                            Counter is cleared when TCNT0 reaches OCR0A
+//  //set CS1[2:0] to 0b001 for internal clocking.
+//  //set OCR1A to count
+//  //set TIMSK1 to OCIE1A
+//
+//  //clear it out
+//  TCCR1A = 0;      //nothing else to set
+//  TCCR1B = 0;
+//  TIMSK1 = 0;
+//  
+//  TCCR1B |= (1 << WGM13);
+//  //TCCR1A |= (1 << WGM12);
+//  TCCR1A |= (1 << WGM11);     // WGM13:10 0b1011 is Phase Correct with OCR1A at top 
+//  TCCR1A |= (1 << WGM10);     // WGM12:10 0b000 is normal mode   WGM12:10 0b100 is CTC mode 
+//  
+//  TCCR1B |= (1 << CS12);       //CS12:10  0b101 = clk/1024  (pg 139)
+//  //TCCR1B |= (1 << CS11);
+//  TCCR1B |= (1 << CS10);  
+//  
+//  //TCCR1A |= (1 << COM1A1);      // COM1x1:0 0b11 sets OC1x on compare match when upcoaunting, clear when downcoutning
+//  // TCCR1A |= (1 << COM1A0);     //  COM1x1:0 0b00  OC1x disconnected.  COM1A1:0 0b01  OC1A connected
+//  
+//  
+//  
+//  TCNT1 = 0;
+//  
+//  OCR2A = count;      // SET COUNTER 
+//  
+//  TIMSK1 |= (1 << OCIE1A);
+//}
+//
+//
+//void mizraith_TimerHelper::setTimer2Count(int count) {
+//	OCR2A = count;      // SET COUNTER    may cause hiccups
+//}
+
+
+
 
 void mizraith_TimerHelper::printTimer0Info() {
   char bitstring[] = "00000000";
@@ -222,15 +306,15 @@ void mizraith_TimerHelper::getBinaryString(uint8_t byteval, char bytestr[])
 }
 
 //works as a class variable, and can't call static, as it's in the .h as static
-char mizraith_TimerHelper::mystring[25] = "Funny, isn't it?"; 
+//char mizraith_TimerHelper::mystring[25] = "Funny, isn't it?"; 
   
-char * mizraith_TimerHelper::returnString() 
-{
-    //the following line works
-   //static char mizraith_TimerHelper::mystring[25] = "Funny, isn't it?"; 
-   char demostring[] = "This is the demo string";
-  strcpy(mystring, demostring);
-    return mystring;
-}
+//char * mizraith_TimerHelper::returnString() 
+//{
+//    //the following line works
+//   //static char mizraith_TimerHelper::mystring[25] = "Funny, isn't it?"; 
+//   char demostring[] = "This is the demo string";
+//  strcpy(mystring, demostring);
+//    return mystring;
+//}
 
 
